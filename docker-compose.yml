@@ -1,0 +1,73 @@
+# The Robinhood Chain launch feed, Redis, and the community bots, self-hosted.
+# The feed is built from hoodtoolkit-feed, cloned beside this repository; it builds once the hoodtoolkit packages are on npm.
+#
+#   cp .env.example .env      # then fill in the values
+#   docker compose up -d                       # Redis and the feed
+#   docker compose --profile telegram up -d    # plus the Telegram bot
+#   docker compose --profile discord up -d     # plus the Discord bot
+#
+# The feed publishes to the Redis stream the bots read. Nothing here holds a wallet key.
+
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "60", "1", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  feed:
+    build:
+      context: ../hoodtoolkit-feed
+      dockerfile: packages/feed/Dockerfile
+    environment:
+      # Empty uses the chain's public endpoint, which rate-limits. Use your own for anything that must keep up.
+      HOOD_RPC_URL: ${HOOD_RPC_URL:-}
+      SINK: redis
+      REDIS_URL: redis://redis:6379
+      # Dollar figures need a price for ETH. A fixed one goes stale; see packages/feed/README.md.
+      QUOTE_PRICES_JSON: ${QUOTE_PRICES_JSON:-}
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  telegram-bot:
+    profiles: ["telegram"]
+    build:
+      context: .
+      dockerfile: apps/Dockerfile
+      args:
+        APP: telegram-bot
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      REDIS_URL: redis://redis:6379
+      BOT_BUTTONS: ${BOT_BUTTONS:-}
+    volumes:
+      - telegram-data:/data
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  discord-bot:
+    profiles: ["discord"]
+    build:
+      context: .
+      dockerfile: apps/Dockerfile
+      args:
+        APP: discord-bot
+    environment:
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
+      DISCORD_APPLICATION_ID: ${DISCORD_APPLICATION_ID:-}
+      DISCORD_MESSAGE_CONTENT: ${DISCORD_MESSAGE_CONTENT:-0}
+      REDIS_URL: redis://redis:6379
+      BOT_BUTTONS: ${BOT_BUTTONS:-}
+    volumes:
+      - discord-data:/data
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  telegram-data:
+  discord-data:
