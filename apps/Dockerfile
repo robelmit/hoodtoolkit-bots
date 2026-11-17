@@ -12,8 +12,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json turbo.js
 COPY packages packages
 COPY apps/${APP} apps/${APP}
 # Installs the app with the workspace packages it uses, then builds those packages.
-RUN pnpm install --frozen-lockfile --filter "@hoodtoolkit/${APP}..." \
- && pnpm --filter "@hoodtoolkit/${APP}^..." build
+RUN pnpm install --frozen-lockfile --filter "@hood-toolkit/${APP}..." \
+ && pnpm --filter "@hood-toolkit/${APP}^..." build
 WORKDIR /repo/apps/${APP}
 # The bots keep their settings file in a volume, so it survives a new image.
 ENV STORE_PATH=/data/store.json

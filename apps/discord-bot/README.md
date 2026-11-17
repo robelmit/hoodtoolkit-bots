@@ -15,8 +15,8 @@ The bot never trades, holds no keys, and asks nobody for a wallet.
 3. Start the launch feed and pipe it in:
 
 ```
-QUOTE_PRICES_JSON='{"ETH":3000}' npx @hoodtoolkit/feed \
-  | DISCORD_BOT_TOKEN=your-token DISCORD_APPLICATION_ID=123456789012345678 pnpm --filter @hoodtoolkit/discord-bot start
+QUOTE_PRICES_JSON='{"ETH":3000}' npx @hood-toolkit/feed \
+  | DISCORD_BOT_TOKEN=your-token DISCORD_APPLICATION_ID=123456789012345678 pnpm --filter @hood-toolkit/discord-bot start
 ```
 
 With Redis between them, the feed and the bots run as separate processes: give the feed `SINK=redis` and both sides the same `REDIS_URL`. The `docker-compose.yml` at the repository root runs it that way.
@@ -63,14 +63,14 @@ A missing or malformed setting stops the bot at start and says which one.
 ## Limits
 
 - It knows the tokens the feed has sent since the bot started.
-- Settings live in one JSON file; for many servers, implement the `Store` interface of `@hoodtoolkit/bot-core` over a database.
+- Settings live in one JSON file; for many servers, implement the `Store` interface of `@hood-toolkit/bot-core` over a database.
 - One process, no sharding.
 - No holder verification, no roles, no trading.
 
 ## Tests
 
 ```
-pnpm --filter @hoodtoolkit/discord-bot test
+pnpm --filter @hood-toolkit/discord-bot test
 ```
 
 10 tests cover the commands and the embeds as plain functions. The connection to Discord (`src/main.ts`) is type-checked and was not run against the real Discord API in this repository's tests; that needs your own bot token.

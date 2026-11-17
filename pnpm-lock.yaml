@@ -44,7 +44,7 @@ importers:
 
   apps/discord-bot:
     dependencies:
-      '@hoodtoolkit/bot-core':
+      '@hood-toolkit/bot-core':
         specifier: workspace:^
         version: link:../../packages/bot-core
       discord.js:
@@ -69,7 +69,7 @@ importers:
 
   apps/telegram-bot:
     dependencies:
-      '@hoodtoolkit/bot-core':
+      '@hood-toolkit/bot-core':
         specifier: workspace:^
         version: link:../../packages/bot-core
       grammy:
@@ -94,7 +94,7 @@ importers:
 
   examples/feed-console:
     dependencies:
-      '@hoodtoolkit/bot-core':
+      '@hood-toolkit/bot-core':
         specifier: workspace:*
         version: link:../../packages/bot-core
     devDependencies:

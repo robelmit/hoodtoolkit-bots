@@ -1,5 +1,5 @@
 {
-  "name": "@hoodtoolkit/telegram-bot",
+  "name": "@hood-toolkit/telegram-bot",
   "version": "0.1.0",
   "private": true,
   "description": "A self-hosted Telegram bot for token communities on Robinhood Chain launchpads: a token card for a pasted address, /trending, and a buy bot that merges busy spells. It reads the launch feed and holds no keys.",
@@ -15,7 +15,7 @@
     "clean": "rimraf .turbo"
   },
   "dependencies": {
-    "@hoodtoolkit/bot-core": "workspace:^",
+    "@hood-toolkit/bot-core": "workspace:^",
     "grammy": "^1.46.0",
     "ioredis": "^6.0.0",
     "tsx": "^4.19.2"

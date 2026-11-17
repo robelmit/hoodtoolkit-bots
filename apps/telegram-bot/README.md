@@ -15,8 +15,8 @@ The bot never trades, holds no keys, and asks nobody for a wallet.
 3. Start the launch feed and pipe it in:
 
 ```
-QUOTE_PRICES_JSON='{"ETH":3000}' npx @hoodtoolkit/feed \
-  | TELEGRAM_BOT_TOKEN=123456:your-token pnpm --filter @hoodtoolkit/telegram-bot start
+QUOTE_PRICES_JSON='{"ETH":3000}' npx @hood-toolkit/feed \
+  | TELEGRAM_BOT_TOKEN=123456:your-token pnpm --filter @hood-toolkit/telegram-bot start
 ```
 
 With Redis between them, the feed and any number of bots run as separate processes: give the feed `SINK=redis` and both sides the same `REDIS_URL`. The `docker-compose.yml` at the repository root runs it that way.
@@ -64,14 +64,14 @@ A missing or malformed setting stops the bot at start and says which one.
 ## Limits
 
 - It knows the tokens the feed has sent since the bot started. `/ca` for a token it has not seen says so.
-- Settings live in one JSON file. That suits hundreds of groups. For more, implement the `Store` interface of `@hoodtoolkit/bot-core` over a database.
+- Settings live in one JSON file. That suits hundreds of groups. For more, implement the `Store` interface of `@hood-toolkit/bot-core` over a database.
 - Run one process per bot. Long polling does not share a bot's updates between processes.
 - No holder verification and no trading.
 
 ## Tests
 
 ```
-pnpm --filter @hoodtoolkit/telegram-bot test
+pnpm --filter @hood-toolkit/telegram-bot test
 ```
 
 15 tests run the bot against a fake Telegram that records every API call. The bot was not run against the real Telegram API in this repository's tests; that needs your own bot token.

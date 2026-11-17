@@ -4,7 +4,7 @@
  * Telegram for updates. Stops cleanly on SIGINT and SIGTERM.
  */
 
-import { FeedState, JsonFileStore, readJsonl, readRedisStream, type Logger } from '@hoodtoolkit/bot-core';
+import { FeedState, JsonFileStore, readJsonl, readRedisStream, type Logger } from '@hood-toolkit/bot-core';
 import { COMMANDS, createBot } from './bot';
 import { readConfig } from './config';
 

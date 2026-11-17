@@ -7,7 +7,7 @@
  * pacing here is the buy bot's own (one post per server every ten seconds).
  */
 
-import { BuyBotEngine, CardLimiter, FeedState, JsonFileStore, detectAddress, readJsonl, readRedisStream, withTokenFacts, type Logger, type PostOutcome } from '@hoodtoolkit/bot-core';
+import { BuyBotEngine, CardLimiter, FeedState, JsonFileStore, detectAddress, readJsonl, readRedisStream, withTokenFacts, type Logger, type PostOutcome } from '@hood-toolkit/bot-core';
 import { Client, DiscordAPIError, Events, GatewayIntentBits, MessageFlags, PermissionFlagsBits, REST, Routes } from 'discord.js';
 import { buyPayload, tokenPayload, type Payload } from './cards';
 import { COMMANDS, handleCommand } from './commands';

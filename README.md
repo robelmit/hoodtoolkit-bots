@@ -6,12 +6,12 @@ Self-hosted community bots for tokens on Robinhood Chain launchpads, from the te
 |---|---|
 | [telegram-bot](apps/telegram-bot) | A token card for a pasted address or `/ca`, `/trending`, and a buy bot a group's admins set up with `/track` |
 | [discord-bot](apps/discord-bot) | The same as slash commands and embeds, with every mention switched off |
-| [`@hoodtoolkit/bot-core`](packages/bot-core) | The shared half, with no bot library inside: a reader for the feed, cards, the buy-bot engine, rate limits, stores, and renderers for both platforms |
+| [`@hood-toolkit/bot-core`](packages/bot-core) | The shared half, with no bot library inside: a reader for the feed, cards, the buy-bot engine, rate limits, stores, and renderers for both platforms |
 
 The bots read the stream of [hoodtoolkit-feed](https://github.com/robelmit/hoodtoolkit-feed). `docker-compose.yml` runs the feed, Redis and the bots together.
 
 ```bash
-npx @hoodtoolkit/feed | pnpm --filter example-feed-console start   # what a bot would post, as plain text
+npx @hood-toolkit/feed | pnpm --filter example-feed-console start   # what a bot would post, as plain text
 ```
 
 ## Principles

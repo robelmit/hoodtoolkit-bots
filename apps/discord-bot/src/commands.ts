@@ -8,7 +8,7 @@
  * declared on the command, because a server can change who sees a command.
  */
 
-import { DEFAULT_MIN_BUY_USD, MIN_BUY_USD_RANGE, ago, detectAddress, fmtUsd, shortAddr, type BuyBotConfig, type DataSource, type Line, type LinkTemplates, type Span, type Store } from '@hoodtoolkit/bot-core';
+import { DEFAULT_MIN_BUY_USD, MIN_BUY_USD_RANGE, ago, detectAddress, fmtUsd, shortAddr, type BuyBotConfig, type DataSource, type Line, type LinkTemplates, type Span, type Store } from '@hood-toolkit/bot-core';
 import { ApplicationCommandOptionType, ChannelType, PermissionFlagsBits, type RESTPostAPIChatInputApplicationCommandsJSONBody } from 'discord.js';
 import { note, tokenPayload, trendingPayload, type Payload } from './cards';
 

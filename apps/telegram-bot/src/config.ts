@@ -4,7 +4,7 @@
  * one; nothing is guessed.
  */
 
-import { DEFAULT_STREAM_KEY, linkTemplates, parseButtons, type LinkTemplates } from '@hoodtoolkit/bot-core';
+import { DEFAULT_STREAM_KEY, linkTemplates, parseButtons, type LinkTemplates } from '@hood-toolkit/bot-core';
 
 export interface Config {
   readonly token: string;

@@ -3,7 +3,7 @@
  * call the bot makes and answers it, so no test touches the network.
  */
 
-import { FeedState, MemoryStore, linkTemplates, parseButtons, type FeedEvent, type FeedTrade } from '@hoodtoolkit/bot-core';
+import { FeedState, MemoryStore, linkTemplates, parseButtons, type FeedEvent, type FeedTrade } from '@hood-toolkit/bot-core';
 import { GrammyError } from 'grammy';
 import type { Update, UserFromGetMe } from 'grammy/types';
 import { describe, expect, it } from 'vitest';

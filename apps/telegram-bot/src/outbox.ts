@@ -11,7 +11,7 @@
  * wait. MarkdownV2 that Telegram refuses is sent again as plain text.
  */
 
-import { SendSlots, toMarkdownV2, toPlain, type Line, type LinkButton, type PostOutcome, type SendLimits } from '@hoodtoolkit/bot-core';
+import { SendSlots, toMarkdownV2, toPlain, type Line, type LinkButton, type PostOutcome, type SendLimits } from '@hood-toolkit/bot-core';
 import { GrammyError, InlineKeyboard, type Api } from 'grammy';
 
 export interface OutboxResult {

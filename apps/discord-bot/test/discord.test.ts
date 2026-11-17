@@ -1,6 +1,6 @@
 /** The slash commands and the embeds, without a Discord client: commands are plain functions of what was asked. */
 
-import { FeedState, MemoryStore, buyOf, linkTemplates, parseButtons, type FeedTrade } from '@hoodtoolkit/bot-core';
+import { FeedState, MemoryStore, buyOf, linkTemplates, parseButtons, type FeedTrade } from '@hood-toolkit/bot-core';
 import { describe, expect, it } from 'vitest';
 import { COLORS, buyPayload, tokenPayload } from '../src/cards';
 import { COMMANDS, handleCommand, type CommandInput } from '../src/commands';

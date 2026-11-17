@@ -1,5 +1,5 @@
 {
-  "name": "@hoodtoolkit/bot-core",
+  "name": "@hood-toolkit/bot-core",
   "version": "0.1.0",
   "description": "The shared half of a community bot for Robinhood Chain launchpad tokens: a reader for the launch feed, token cards, trending, a buy bot that merges busy spells, rate limits, stores, and renderers for Telegram and Discord. No bot library inside.",
   "license": "MIT",

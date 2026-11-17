@@ -39,7 +39,7 @@ import {
   type LinkTemplates,
   type Logger,
   type Store,
-} from '@hoodtoolkit/bot-core';
+} from '@hood-toolkit/bot-core';
 import { Bot, type Context } from 'grammy';
 import type { UserFromGetMe } from 'grammy/types';
 import { MD, Outbox, isParseError, keyboardOf, type OutboxLimits } from './outbox';

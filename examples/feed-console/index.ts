@@ -10,7 +10,7 @@
  * the feed ends it prints the trending list and stops.
  */
 
-import { BuyBotEngine, DEFAULT_MIN_BUY_USD, FeedState, MemoryStore, buyOf, buyPostCard, detectAddress, linkTemplates, parseUsd, readJsonl, toPlain, tokenCard, trendingCard, withTokenFacts } from '@hoodtoolkit/bot-core';
+import { BuyBotEngine, DEFAULT_MIN_BUY_USD, FeedState, MemoryStore, buyOf, buyPostCard, detectAddress, linkTemplates, parseUsd, readJsonl, toPlain, tokenCard, trendingCard, withTokenFacts } from '@hood-toolkit/bot-core';
 
 const [addressArg, minArg] = process.argv.slice(2).filter((arg) => arg !== '--');
 const address = addressArg ? detectAddress(addressArg) : null;

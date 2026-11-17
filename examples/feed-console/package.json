@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@hoodtoolkit/bot-core": "workspace:*"
+    "@hood-toolkit/bot-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

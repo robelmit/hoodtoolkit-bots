@@ -1,5 +1,5 @@
 {
-  "name": "@hoodtoolkit/discord-bot",
+  "name": "@hood-toolkit/discord-bot",
   "version": "0.1.0",
   "private": true,
   "description": "A self-hosted Discord bot for token communities on Robinhood Chain launchpads: /ca for a token card, /trending, and a buy bot that merges busy spells. It reads the launch feed and holds no keys.",
@@ -15,7 +15,7 @@
     "clean": "rimraf .turbo"
   },
   "dependencies": {
-    "@hoodtoolkit/bot-core": "workspace:^",
+    "@hood-toolkit/bot-core": "workspace:^",
     "discord.js": "^14.27.0",
     "ioredis": "^6.0.0",
     "tsx": "^4.19.2"

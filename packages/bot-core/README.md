@@ -1,11 +1,11 @@
-# @hoodtoolkit/bot-core
+# @hood-toolkit/bot-core
 
 The shared half of a community bot for Robinhood Chain launchpad tokens. It reads the [launch feed](https://github.com/robelmit/hoodtoolkit-feed/tree/main/packages/feed), keeps the tokens and their last five minutes of trades in memory, and builds what a bot says: a token card, a trending list, and buy posts that are merged when a token is busy.
 
 There is no bot library inside. The [Telegram bot](../../apps/telegram-bot) and the [Discord bot](../../apps/discord-bot) are thin layers over this package, and a bot for any other platform can be built the same way.
 
 ```ts
-import { BuyBotEngine, FeedState, MemoryStore, buyPostCard, linkTemplates, readJsonl, toPlain } from '@hoodtoolkit/bot-core';
+import { BuyBotEngine, FeedState, MemoryStore, buyPostCard, linkTemplates, readJsonl, toPlain } from '@hood-toolkit/bot-core';
 
 const links = linkTemplates();
 const feed = new FeedState();
@@ -30,7 +30,7 @@ await readJsonl(process.stdin, (event) => feed.apply(event));
 ## Install
 
 ```
-npm i @hoodtoolkit/bot-core
+npm i @hood-toolkit/bot-core
 ```
 
 Node 20 or later. No dependencies.
@@ -87,7 +87,7 @@ interface DataSource {
 ## Tests
 
 ```
-pnpm --filter @hoodtoolkit/bot-core test
+pnpm --filter @hood-toolkit/bot-core test
 ```
 
 47 tests. The feed tests replay real output of the launch feed (`test/fixtures/feed.jsonl`).

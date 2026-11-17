@@ -5,7 +5,7 @@
  * "@everyone" pings nobody.
  */
 
-import { buttonsFor, buyPostCard, isWhale, toDiscord, tokenCard, trendingCard, type BuyPost, type Line, type LinkTemplates, type TokenView } from '@hoodtoolkit/bot-core';
+import { buttonsFor, buyPostCard, isWhale, toDiscord, tokenCard, trendingCard, type BuyPost, type Line, type LinkTemplates, type TokenView } from '@hood-toolkit/bot-core';
 import { ButtonStyle, ComponentType, type APIActionRowComponent, type APIButtonComponent, type APIEmbed } from 'discord.js';
 
 /** Side-bar colours of the embeds. */
