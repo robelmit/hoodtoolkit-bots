@@ -47,8 +47,8 @@ Admin commands are checked with Telegram's `getChatMember`. They are not trusted
 | `REDIS_URL` | — | Required with `FEED=redis` |
 | `FEED_STREAM_KEY` | `stream:market:robinhood` | The feed's stream |
 | `STORE_PATH` | `./data/telegram.json` | The file the groups' settings are kept in |
-| `BOT_BUTTONS` | `Explorer` → Solscan | Buttons under cards and buy posts: `Label|https://…{address}`, comma separated, at most five |
-| `LINK_TOKEN`, `LINK_WALLET`, `LINK_TX` | Solscan | Link templates with `{address}` or `{tx}` |
+| `BOT_BUTTONS` | `Explorer` → Blockscout | Buttons under cards and buy posts: `Label|https://…{address}`, comma separated, at most five |
+| `LINK_TOKEN`, `LINK_WALLET`, `LINK_TX` | Blockscout (robinhoodchain.blockscout.com) | Link templates with `{address}` or `{tx}` |
 
 A missing or malformed setting stops the bot at start and says which one.
 
