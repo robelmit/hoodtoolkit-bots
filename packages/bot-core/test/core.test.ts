@@ -218,7 +218,7 @@ describe('cards', () => {
 
   it('shows the hour the bot watched, the peak, the rank and the first call when they are known', () => {
     const rich: TokenView = { ...token, mc: 40_000, h1: { buys: 25, sells: 30, volumeUsd: 1_539, priceChangePct: -11.7 }, peak: { mc: 120_000, at: 1_000 } };
-    const text = toText(tokenCard(rich, linkTemplates(), 3_601_000, { rank: 4, caller: { name: 'ana', mc: 10_000, at: 1_000 } })).split('\n');
+    const text = toText(tokenCard(rich, linkTemplates(), 3_601_000, { rank: 4, caller: { by: 'ana', mc: 10_000, at: 1_000 } })).split('\n');
     expect(text[0]).toBe('🧪 Zop [new] [40K / -12% 1h] $ZOP/USDG');
     expect(text[1]).toBe('🪶 Robinhood Chain @ Pons · curve 71% · 🔥 #4');
     expect(text[3]).toBe('💎 MC: $40K ⇨ $120K peak [1h]');
@@ -295,7 +295,7 @@ describe('stores', () => {
     let now = 10;
     const store = new MemoryStore(() => now);
     expect(await store.get('g')).toBeNull();
-    expect(await store.upsert('g', { title: 'Group' })).toEqual({ id: 'g', title: 'Group', buyBot: null, left: false, updatedAt: 10 });
+    expect(await store.upsert('g', { title: 'Group' })).toEqual({ id: 'g', title: 'Group', buyBot: null, alerts: null, calls: [], left: false, updatedAt: 10 });
     now = 20;
     await store.upsert('g', { buyBot });
     expect((await store.get('g'))!.title).toBe('Group');
@@ -321,7 +321,7 @@ describe('stores', () => {
       const store = await JsonFileStore.open(path, () => 42);
       await Promise.all([store.upsert('a', { title: 'A', buyBot }), store.upsert('b', { title: 'B' })]);
       const again = await JsonFileStore.open(path);
-      expect(await again.get('a')).toEqual({ id: 'a', title: 'A', buyBot, left: false, updatedAt: 42 });
+      expect(await again.get('a')).toEqual({ id: 'a', title: 'A', buyBot, alerts: null, calls: [], left: false, updatedAt: 42 });
       expect((await again.withBuyBot()).map((r) => r.id)).toEqual(['a']);
       expect(JSON.parse(await readFile(path, 'utf8')).version).toBe(1);
 
