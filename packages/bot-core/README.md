@@ -44,9 +44,10 @@ Node 20 or later. No dependencies.
 | `BuyBotEngine` | Decides which buys to post and when: the community's least size, one post per community every ten seconds, busy spells merged, old buys skipped |
 | `AlertEngine`, `alertCard`, `parseLaunchArgs` | Alerts: new launches the first time they reach a market cap, graduations, and the tracked token's creator selling; one of each kind a minute per community, stale ones dropped |
 | `firstCall`, `callsCard` | First calls per community, and the week's best calls |
+| `quoteCard`, `quoteViewOf`, `toolErrorText`, `offeredCommands` | Draw a Pons quote from the chain tools (`createToolRunner` of `@hood-toolkit/mcp`) for a chat, and list only the commands the tools offer |
 | `saveFeedSnapshot`, `loadFeedSnapshot`, `keepFeedSnapshot` | The tokens a bot knows, kept across restarts |
 | `tokenCard`, `trendingCard`, `buyPostCard` | Build the messages as rich-text lines. A card can carry the token's trending rank and the chat's first call |
-| `toMarkdownV2`, `toDiscord`, `toPlain`, `toText` | Print those lines for Telegram, for Discord, as plain text with links, or as text alone, escaping what each platform treats as markup |
+| `toMarkdownV2`, `toDiscord`, `toPlain`, `toText`, `toAnsi` | Print those lines for Telegram, for Discord, as plain text with links, as text alone, or for a terminal, escaping what each platform treats as markup |
 | `telegramEntities` | How many formatting entities a message makes; Telegram ignores those past 100 |
 | `CardLimiter`, `SendSlots` | A budget for unasked cards, and send times that stay inside a platform's rates |
 | `MemoryStore`, `JsonFileStore` | Where communities' settings are kept; `Store` is four methods if you want a database (a fifth, `withAlerts`, for alerts) |
@@ -95,7 +96,7 @@ interface DataSource {
 pnpm --filter @hood-toolkit/bot-core test
 ```
 
-65 tests. The feed tests replay real output of the launch feed (`test/fixtures/feed.jsonl`).
+70 tests. The feed tests replay real output of the launch feed (`test/fixtures/feed.jsonl`).
 
 ## Licence
 

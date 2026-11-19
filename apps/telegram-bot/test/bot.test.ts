@@ -3,7 +3,7 @@
  * call the bot makes and answers it, so no test touches the network.
  */
 
-import { FeedState, MemoryStore, linkTemplates, parseButtons, type FeedEvent, type FeedTrade } from '@hood-toolkit/bot-core';
+import { FeedState, MemoryStore, linkTemplates, parseButtons, type ChainTools, type FeedEvent, type FeedTrade } from '@hood-toolkit/bot-core';
 import { GrammyError } from 'grammy';
 import type { Update, UserFromGetMe } from 'grammy/types';
 import { describe, expect, it } from 'vitest';
@@ -24,13 +24,13 @@ interface Call {
   payload: Record<string, unknown>;
 }
 
-function harness(options: { refuse?: (call: Call) => GrammyError | null; poweredBy?: string; cardImage?: boolean } = {}) {
+function harness(options: { refuse?: (call: Call) => GrammyError | null; poweredBy?: string; cardImage?: boolean; tools?: ChainTools | null } = {}) {
   let now = 1_000_000;
   let updateId = 0;
   const feed = new FeedState({ now: () => now });
   const store = new MemoryStore(() => now);
   const links = linkTemplates({ buttons: parseButtons('Chart|https://example.com/c/{address}') });
-  const { bot, engine, alerts, outbox } = createBot({ token: TOKEN, source: feed, store, links, botInfo, now: () => now, sleep: async (ms) => void (now += ms), poweredBy: options.poweredBy ?? null, cardImage: options.cardImage ?? false });
+  const { bot, engine, alerts, outbox } = createBot({ token: TOKEN, source: feed, store, links, botInfo, now: () => now, sleep: async (ms) => void (now += ms), poweredBy: options.poweredBy ?? null, cardImage: options.cardImage ?? false, tools: options.tools ?? null });
   feed.onTrade(engine.onTrade);
   feed.onToken(alerts.onToken);
   feed.onTrade(alerts.onTrade);
@@ -292,6 +292,54 @@ describe('the outbox', () => {
     expect((await outbox.text('-1', [['b']], { kind: 'buy' })).outcome).toBe('sent');
     expect((await outbox.text('-1', [['c']], { kind: 'buy' })).outcome).toBe('dropped');
     expect(outbox.getStats().buy).toEqual({ sent: 2, dropped: 1, gone: 0, failed: 0, limited: 1 });
+  });
+});
+
+describe("the chain's tools", () => {
+  const fake = (): ChainTools & { asked: { name: string; args: Record<string, unknown> }[] } => {
+    const asked: { name: string; args: Record<string, unknown> }[] = [];
+    return {
+      asked,
+      tools: ['pons_quote', 'pons_token'],
+      async run(name, args) {
+        asked.push({ name, args });
+        if (name === 'pons_quote' && args.amountIn === '100000000000000000') throw Object.assign(new Error('The Pons factory did not launch this token.'), { code: 'NOT_A_PONS_TOKEN' });
+        if (name === 'pons_quote') return { side: 'buy', amountIn: args.amountIn, amountOut: '1234567000000000000000000', minAmountOut: '1197530000000000000000000', slippageBps: 300, fee: '500000000000000', creatorTax: '250000000000000', snipeTax: '0', refund: '0', pairedWith: { symbol: 'ETH', decimals: 18 } };
+        throw Object.assign(new Error('The Pons factory did not launch this token.'), { code: 'NOT_A_PONS_TOKEN' });
+      },
+    };
+  };
+  const listEth = (h: ReturnType<typeof harness>): void => h.feed.apply({ type: 'token_upsert', ts: 1, token: { address: MINT, symbol: 'ZOP', name: 'Zop', decimals: 18, quote: 'ETH', quoteDecimals: 18, launchpad: 'pons', stage: 'new' } });
+
+  it('says so when the bot runs without a chain endpoint, and when the feed does not know the coin', async () => {
+    const h = harness();
+    listEth(h);
+    await h.say(`/quote ${MINT} 0.05`);
+    expect(h.lastText()).toContain('without a chain endpoint');
+    const t = harness({ tools: fake() });
+    await t.say(`/quote ${MINT} 0.05`);
+    expect(t.lastText()).toContain('the coin it trades in is unknown');
+  });
+
+  it('quotes a Pons buy in the coin the token trades in, once in 30 seconds per chat', async () => {
+    const tools = fake();
+    const h = harness({ tools });
+    listEth(h);
+    await h.say(`/quote ${MINT} 0.05`, MEMBER);
+    expect(tools.asked[0]).toEqual({ name: 'pons_quote', args: { token: MINT, side: 'buy', amountIn: '50000000000000000' } });
+    expect(h.lastText()).toContain('💱 *Quote: 0\\.05 ETH → ZOP* · on Pons');
+    expect(h.lastText()).toContain('Fee: 0\\.00075 ETH');
+    await h.say(`/quote ${MINT} 0.05`, MEMBER);
+    expect(h.lastText()).toContain('Asked a moment ago');
+  });
+
+  it('says a tool failure as the tool said it, and that a command this chain lacks is not available', async () => {
+    const h = harness({ tools: fake() });
+    listEth(h);
+    await h.say(`/quote ${MINT} 0.1`, MEMBER);
+    expect(h.lastText()).toContain('⚠️ The Pons factory did not launch this token\\.');
+    await h.say(`/safety ${MINT}`, MEMBER);
+    expect(h.lastText()).toContain('not available for this chain');
   });
 });
 

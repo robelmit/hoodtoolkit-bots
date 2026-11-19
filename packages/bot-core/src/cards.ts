@@ -9,6 +9,7 @@ import { callMultiple, fmtMultiple } from './calls';
 import { DASH, ago, fmtNum, fmtPct, fmtPrice, fmtQuote, fmtShort, fmtTokenAmount, fmtUsd, shortAddr } from './format';
 import { holderMapUrl, rowFor, tokenUrl, txUrl, walletUrl, type LinkTemplates } from './links';
 import type { Line, Span } from './rich';
+import { fmtUnits, type QuoteView } from './tool-cards';
 import type { BuyBotConfig, DataSource, FeedTrade, TokenView, WindowFigures } from './types';
 
 /** The chain this kit's cards name. */
@@ -303,3 +304,77 @@ export function buyPostCard(post: BuyPost, links: LinkTemplates): Line[] {
     ['💎 MC ', v(money(latest.mc)), ' · Price ', v(fmtPrice(latest.price))],
   ];
 }
+
+/** The native coin's base units in one whole coin. */
+export const NATIVE_DECIMALS = 18;
+/** Pons tokens have 18 decimals (the quote tool says so). */
+const PONS_TOKEN_DECIMALS = 18;
+
+/** A decimal amount as somebody typed it (`0.05`), in base units, exactly; null when it is not one. */
+function toUnits(typed: string, decimals: number): string | null {
+  const text = typed.replace(/,/g, '').trim();
+  const match = /^(\d+)(?:\.(\d+))?$/.exec(text);
+  if (!match) return null;
+  const fraction = (match[2] ?? '').slice(0, decimals).padEnd(decimals, '0');
+  return BigInt(`${match[1]}${fraction}`).toString();
+}
+
+/**
+ * How much a `/quote` puts in, from what somebody typed, in the base units of the coin the token trades in (ETH,
+ * the dollar coin, or a tokenized stock, as the feed says); null when that coin is unknown or the amount is not
+ * one from 0.001 to 1,000.
+ */
+export function quoteAmountIn(typed: string, token: { readonly quote?: string | null; readonly quoteDecimals?: number | null } | null = null): { readonly units: string; readonly symbol: string; readonly decimals: number } | null {
+  const decimals = token?.quoteDecimals;
+  if (!token?.quote || typeof decimals !== 'number' || !Number.isInteger(decimals) || decimals < 0 || decimals > 36) return null;
+  const amount = Number(typed.replace(/,/g, ''));
+  if (!Number.isFinite(amount) || amount < 0.001 || amount > 1_000) return null;
+  const units = toUnits(typed, decimals);
+  return units === null ? null : { units, symbol: token.quote, decimals };
+}
+
+/** The quote tool's answer (`pons_quote`) as a card's view. */
+export function quoteViewOf(result: unknown, token: Pick<TokenView, 'symbol' | 'decimals'> | null): QuoteView {
+  const r = result as { side?: 'buy' | 'sell'; amountIn?: string; amountOut?: string; minAmountOut?: string; slippageBps?: number; fee?: string; creatorTax?: string; snipeTax?: string; refund?: string; pairedWith?: { symbol?: string | null; decimals?: number | null } };
+  const buy = r.side !== 'sell';
+  const pair = r.pairedWith?.symbol ?? 'the paired coin';
+  const pairDecimals = typeof r.pairedWith?.decimals === 'number' ? r.pairedWith.decimals : null;
+  const tokenDecimals = typeof token?.decimals === 'number' && Number.isInteger(token.decimals) ? token.decimals : PONS_TOKEN_DECIMALS;
+  const symbol = token?.symbol ?? 'tokens';
+  const big = (v: string | undefined): bigint => (v && /^\d+$/.test(v) ? BigInt(v) : 0n);
+  const fee = big(r.fee) + big(r.creatorTax);
+  const notes: string[] = [];
+  if (big(r.snipeTax) > 0n) notes.push(`A snipe tax of ${pairDecimals === null ? `${r.snipeTax} base units` : fmtUnits(r.snipeTax!, pairDecimals)} ${pair} applies: buys in the first seconds after a launch pay it.`);
+  if (big(r.refund) > 0n) notes.push(`The curve has less left than this buy takes: ${pairDecimals === null ? `${r.refund} base units` : fmtUnits(r.refund!, pairDecimals)} ${pair} would come back.`);
+  return {
+    side: buy ? 'buy' : 'sell',
+    venue: 'Pons',
+    amountIn: r.amountIn ?? '0',
+    inSymbol: buy ? pair : symbol,
+    inDecimals: buy ? pairDecimals : tokenDecimals,
+    amountOut: r.amountOut ?? '0',
+    minOut: r.minAmountOut ?? '0',
+    outSymbol: buy ? symbol : pair,
+    outDecimals: buy ? tokenDecimals : pairDecimals,
+    slippageBps: r.slippageBps ?? 300,
+    fee: fee > 0n && pairDecimals !== null ? `${fmtUnits(fee.toString(), pairDecimals)} ${pair}` : null,
+    impactBps: null,
+    notes,
+  };
+}
+
+/** The `/quote` call for this chain's tools: its name and arguments. */
+export const quoteToolCall = (address: string, amountIn: string): { readonly name: string; readonly args: Record<string, unknown> } => ({ name: 'pons_quote', args: { token: address, side: 'buy', amountIn } });
+
+/** Whether `/quote` needs the feed to know the token first (to know the coin it trades in). Pons tokens trade in several. */
+export const QUOTE_NEEDS_FEED = true;
+
+/** The commands that need a chain tool, and the tool each needs: a bot lists only the ones its tools offer. */
+export const TOOL_COMMANDS: Readonly<Record<string, string>> = { quote: 'pons_quote', safety: 'token_safety', holders: 'holder_map', app: 'identify_trading_app' };
+
+/** The commands a bot offers: every command, less the tool commands its tools do not have (all of them without tools). */
+export const offeredCommands = <T extends { readonly command?: string; readonly name?: string }>(commands: readonly T[], tools: { readonly tools: readonly string[] } | null): T[] =>
+  commands.filter((c) => {
+    const needs = TOOL_COMMANDS[c.command ?? c.name ?? ''];
+    return !needs || (tools?.tools.includes(needs) ?? false);
+  });

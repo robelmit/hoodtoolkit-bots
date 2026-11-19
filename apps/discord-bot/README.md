@@ -34,6 +34,7 @@ Slash commands are registered when the bot starts. Discord can take a while to s
 | `/untrack` | Manage Server | Turn the buy bot off |
 | `/buybot` | Anyone | The buy bot's settings, shown only to you |
 | `/calls` | Anyone | The best calls in this server in the last 7 days |
+| `/quote address amount` | Anyone | What a buy of a Pons token gets, read from its curve |
 | `/launches mode [min_mc] [launchpad] [channel]` | Manage Server | Post tokens younger than an hour the first time they reach a market cap (default $20K), in a channel |
 | `/graduations mode [channel]` | Manage Server | Post tokens that finish their bonding curve, in a channel |
 | `/help` | Anyone | What the bot does |
@@ -52,6 +53,7 @@ The manager commands are declared with the Manage Server permission, and the per
 | `FEED_STREAM_KEY` | `stream:market:robinhood` | The feed's stream |
 | `STORE_PATH` | `./data/discord.json` | The file the servers' settings are kept in |
 | `SNAPSHOT_PATH` | `./data/feed-snapshot.json` | Where the tokens the bot knows are kept across restarts (saved every five minutes and at shutdown, read at start when less than a day old); `off` for none |
+| `HOOD_RPC_URL` | Robinhood Chain's public endpoint | The endpoint `/quote` reads a Pons curve through (the toolkit's own read-only tools, `@hood-toolkit/mcp` 0.2 or later); `off` turns `/quote` off |
 | `BOT_BUTTONS` | `Explorer` → Blockscout | Link buttons under cards and buy posts: `Label|https://…{address}`, comma separated, at most five |
 | `LINK_ROW` | `EXP` → Blockscout, `LIVE` → the hoodtoolkit Live page, `X` → an X search | The short links inside a card: `CODE|https://…{address}`, comma separated, at most ten, codes up to 12 characters; `off` for none |
 | `HOLDER_MAP_URL` | — | A 🫧 holder map link in the card, `https://…{address}`; none by default, as Robinhood Chain has no holder map yet |
@@ -67,6 +69,7 @@ A missing or malformed setting stops the bot at start and says which one.
 - **Calls.** The first card of a token in a server (asked with `/ca` or a pasted address) notes who called it and the market cap then. Later cards credit them ("🏆 ana @ 10K · 4.0x · 2d"), and `/calls` ranks the last week's calls by how far they went. Names are printed as text, never as mentions. At most 300 calls are kept per server, for 30 days.
 - **Alerts.** At most one launch alert and one graduation alert a minute per server; an alert that could not go out within three minutes is dropped. A token is posted at most once per server. A dev-sold warning goes out at once, for the token the buy bot tracks.
 - **Restarts.** The bot saves the tokens it knows and reads them back at start, so a card works for a token listed before the restart. Window figures and trades are not saved; they come back from the feed.
+- **Quotes.** `/quote` asks the same read-only tool the MCP server gives AI agents (`pons_quote`), in the coin the token trades in as the feed says, so it needs the feed to know the token. A server asks at most six a minute and the same thing once in 30 seconds; nothing is signed or sent. Discord is told to wait first, as a read can take longer than the three seconds it allows.
 - **A channel that is gone.** If the bot can no longer post in the buy bot's channel, the buy bot is switched off for that server; a manager runs `/track` again.
 - **Dollar figures** come from the feed. Give the feed an ETH price, or buys paid in ETH have no dollar value and none is posted. Buys paid in the chain's dollar coin are valued without it.
 
@@ -83,7 +86,7 @@ A missing or malformed setting stops the bot at start and says which one.
 pnpm --filter @hood-toolkit/discord-bot test
 ```
 
-16 tests cover the commands, the buttons, calls, alerts and the embeds as plain functions. The connection to Discord (`src/main.ts`) is type-checked and was not run against the real Discord API in this repository's tests; that needs your own bot token.
+17 tests cover the commands, the buttons, calls, alerts and the embeds as plain functions. The connection to Discord (`src/main.ts`) is type-checked and was not run against the real Discord API in this repository's tests; that needs your own bot token.
 
 ## Licence
 

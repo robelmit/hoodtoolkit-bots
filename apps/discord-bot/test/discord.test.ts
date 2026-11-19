@@ -3,7 +3,7 @@
 import { FeedState, MemoryStore, buyOf, linkTemplates, parseButtons, type FeedTrade } from '@hood-toolkit/bot-core';
 import { describe, expect, it } from 'vitest';
 import { COLORS, alertPayload, buyPayload, tokenPayload } from '../src/cards';
-import { COMMANDS, handleButton, handleCommand, newRefreshGate, type CommandInput } from '../src/commands';
+import { COMMANDS, SLOW_COMMANDS, handleButton, handleCommand, newRefreshGate, type CommandInput } from '../src/commands';
 import { readConfig } from '../src/config';
 
 const MINT = '0x97720cc1daa1ffbfa9d68f3081b2389c5dd9d67d';
@@ -25,7 +25,7 @@ function harness() {
 
 describe('commands', () => {
   it('registers every command for servers only, the admin ones for managers', () => {
-    expect(COMMANDS.map((c) => c.name)).toEqual(['ca', 'trending', 'track', 'minbuy', 'untrack', 'buybot', 'calls', 'launches', 'graduations', 'help']);
+    expect(COMMANDS.map((c) => c.name)).toEqual(['ca', 'trending', 'track', 'minbuy', 'untrack', 'buybot', 'calls', 'quote', 'safety', 'holders', 'app', 'launches', 'graduations', 'help']);
     expect(COMMANDS.every((c) => c.dm_permission === false)).toBe(true);
     expect(COMMANDS.filter((c) => c.default_member_permissions).map((c) => c.name)).toEqual(['track', 'minbuy', 'untrack', 'launches', 'graduations']);
     for (const command of COMMANDS) expect(command.description.length).toBeLessThanOrEqual(100);
@@ -134,6 +134,23 @@ describe('commands', () => {
     expect((await h.store.get(GUILD))!.buyBot).toBeNull();
     expect(h.text(await h.run('buybot'))).toContain('No token is tracked here');
     expect(h.text(await h.run('nope'))).toContain('Unknown command');
+  });
+});
+
+describe("the chain's tools", () => {
+  it('quotes a Pons buy for everyone to see, and says what this chain does not have only to the asker', async () => {
+    const h = harness();
+    h.feed.apply({ type: 'token_upsert', ts: 1, token: { address: MINT, symbol: 'ZOP', name: 'Zop', decimals: 18, quote: 'ETH', quoteDecimals: 18, launchpad: 'pons', stage: 'new' } });
+    const tools = { tools: ['pons_quote'], run: async (_name: string, args: Record<string, unknown>) => ({ side: 'buy', amountIn: args.amountIn, amountOut: '1234567000000000000000000', minAmountOut: '1197530000000000000000000', slippageBps: 300, fee: '0', creatorTax: '0', snipeTax: '0', refund: '0', pairedWith: { symbol: 'ETH', decimals: 18 } }) };
+    const deps = { source: h.feed, store: h.store, links: h.links, changed: () => undefined, tools };
+    const run = (name: string, over: Partial<CommandInput>) => handleCommand({ name, guildId: GUILD, guildName: 'Server', channelId: '111', userId: '7', canManage: false, ...over }, deps);
+    const quote = await run('quote', { address: MINT, amount: 0.05 });
+    expect(quote.ephemeral).toBe(false);
+    expect(h.text(quote)).toContain('💱 **Quote: 0.05 ETH → ZOP** · on Pons');
+    const missing = await run('safety', { address: MINT });
+    expect(missing.ephemeral).toBe(true);
+    expect(h.text(missing)).toContain('not available for this chain');
+    expect(SLOW_COMMANDS.has('quote')).toBe(true);
   });
 });
 

@@ -25,6 +25,8 @@ npx @hood-toolkit/feed | pnpm --filter example-feed-console start   # what a bot
 
 Node 22.13 or newer and pnpm to work on the repository; the published packages run on Node 20 or newer.
 
+This repository uses packages of [hoodtoolkit-agents](https://github.com/robelmit/hoodtoolkit-agents). Until those are on npm, clone it beside this one and run `pnpm install && pnpm build` there first; `.pnpmfile.cjs` then links the local copies.
+
 ```bash
 pnpm install
 pnpm check        # build, typecheck, test, lint

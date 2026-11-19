@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@hood-toolkit/bot-core": "workspace:^",
+    "@hood-toolkit/mcp": "^0.1.0",
     "grammy": "^1.46.0",
     "ioredis": "^6.0.0",
     "tsx": "^4.19.2"

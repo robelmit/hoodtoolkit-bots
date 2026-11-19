@@ -4,6 +4,8 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+pnpmfileChecksum: sha256-ZC6KZX4Aya67I1HaaM/vC9ScxOxXHUfPgT5fHZqZ0QU=
+
 importers:
 
   .:
@@ -47,6 +49,9 @@ importers:
       '@hood-toolkit/bot-core':
         specifier: workspace:^
         version: link:../../packages/bot-core
+      '@hood-toolkit/mcp':
+        specifier: link:C:\Users\TnyKwv09wt\hoodtoolkit-repos\hoodtoolkit-agents\packages\mcp
+        version: link:../../../hoodtoolkit-agents/packages/mcp
       discord.js:
         specifier: ^14.27.0
         version: 14.28.1
@@ -72,6 +77,9 @@ importers:
       '@hood-toolkit/bot-core':
         specifier: workspace:^
         version: link:../../packages/bot-core
+      '@hood-toolkit/mcp':
+        specifier: link:C:\Users\TnyKwv09wt\hoodtoolkit-repos\hoodtoolkit-agents\packages\mcp
+        version: link:../../../hoodtoolkit-agents/packages/mcp
       grammy:
         specifier: ^1.46.0
         version: 1.46.0

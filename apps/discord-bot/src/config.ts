@@ -4,7 +4,7 @@
  * one; nothing is guessed.
  */
 
-import { DEFAULT_STREAM_KEY, linksFromSettings, type LinkTemplates } from '@hood-toolkit/bot-core';
+import { DEFAULT_STREAM_KEY, linksFromSettings, readRpcUrl, type LinkTemplates } from '@hood-toolkit/bot-core';
 
 export interface Config {
   readonly token: string;
@@ -23,7 +23,12 @@ export interface Config {
   readonly messageContent: boolean;
   /** A credit line for whoever runs the bot, shown at the end of /help (`BOT_POWERED_BY`). */
   readonly poweredBy: string | null;
+  /** The Robinhood Chain endpoint for /quote (`HOOD_RPC_URL`, default the public one); null when set to off. */
+  readonly rpcUrl: string | null;
 }
+
+/** Robinhood Chain's public endpoint (it rate-limits). */
+export const HOOD_PUBLIC_RPC = 'https://rpc.mainnet.chain.robinhood.com';
 
 export function readConfig(env: Readonly<Record<string, string | undefined>>): Config {
   const get = (name: string): string | undefined => {
@@ -58,6 +63,9 @@ export function readConfig(env: Readonly<Record<string, string | undefined>>): C
   const poweredBy = get('BOT_POWERED_BY') ?? null;
   if (poweredBy !== null && poweredBy.length > 120) throw new Error('BOT_POWERED_BY is at most 120 characters');
 
+  // The chain's public endpoint serves the quote reads; a node of your own goes in HOOD_RPC_URL, and off turns /quote off.
+  const rpcSetting = get('HOOD_RPC_URL');
+  const rpcUrl = rpcSetting?.toLowerCase() === 'off' ? null : (readRpcUrl(rpcSetting, 'HOOD_RPC_URL') ?? HOOD_PUBLIC_RPC);
   const snapshot = get('SNAPSHOT_PATH');
-  return { token, applicationId, feed, storePath: get('STORE_PATH') ?? './data/discord.json', snapshotPath: snapshot?.toLowerCase() === 'off' ? null : (snapshot ?? './data/feed-snapshot.json'), links, messageContent: content === '1', poweredBy };
+  return { token, applicationId, feed, rpcUrl, storePath: get('STORE_PATH') ?? './data/discord.json', snapshotPath: snapshot?.toLowerCase() === 'off' ? null : (snapshot ?? './data/feed-snapshot.json'), links, messageContent: content === '1', poweredBy };
 }
