@@ -21,13 +21,17 @@ import {
   fmtTokenAmount,
   fmtUsd,
   fromBaseUnits,
+  fmtShort,
   linkTemplates,
   parseButtons,
+  parseLinkRow,
   parseUsd,
   shortAddr,
+  telegramEntities,
   toDiscord,
   toMarkdownV2,
   toPlain,
+  toText,
   tokenCard,
   trendingCard,
   txUrl,
@@ -187,20 +191,45 @@ describe('cards', () => {
     lastTradeAt: 60_000,
   };
 
-  it('prints a token card with unknown figures as dashes', () => {
-    const text = toPlain(tokenCard(token, linkTemplates(), 61_000));
-    expect(text.split('\n')).toEqual([
-      'ZOP — Zop [new]',
+  it("prints a token card in the traders' order, with unknown figures as dashes", () => {
+    const lines = tokenCard(token, linkTemplates(), 61_000);
+    expect(toText(lines).split('\n')).toEqual([
+      '🧪 Zop [new] [4.4K / +12% 5m] $ZOP/USDG',
+      '🪶 Robinhood Chain @ Pons · curve 71%',
+      '💰 Price: $0.0₅4446',
+      '💎 MC: $4.4K',
+      '💧 Liq: —',
+      '📈 5M: +12.3% · $820 · 🅑 2 Ⓢ 1',
+      '📊 Age: 1m',
+      '👥 Holders: —',
+      '🔗 EXP · LIVE · X',
+      '',
       MINT,
-      'Robinhood Chain · pons · bonding 71% · paired with USDG · 1m old',
-      'Price $0.0₅4446 · MC $4,446.05 · Liq —',
-      '5m +12.3% · Vol 5m $820.00 · Holders —',
-      `Open in explorer (${EXPLORER}/token/${MINT})`,
+      '♻️ Updated 1970-01-01 00:01 UTC',
     ]);
+    expect(toPlain(lines)).toContain(`EXP (${EXPLORER}/token/${MINT})`);
+    expect(toPlain(lines)).toContain(`LIVE (https://hoodtoolkit-live.vercel.app/#/token/${MINT})`);
     // Checks are shown only when a source sends them.
-    const checked = toPlain(tokenCard({ ...token, audit: { mintRevoked: true, freezeRevoked: null }, risk: { top10Pct: 31.2, devPct: 3.08 } }, linkTemplates(), 61_000));
-    expect(checked).toContain('Checks: mint ✅ · freeze — · top 10 31% · dev 3%');
-    expect(toMarkdownV2(tokenCard(token, linkTemplates(), 61_000))).toContain('*ZOP* — Zop \\[new\\]');
+    const checked = toText(tokenCard({ ...token, audit: { mintRevoked: true, freezeRevoked: null }, risk: { top10Pct: 31.2, devPct: 3.08 } }, linkTemplates(), 61_000));
+    expect(checked).toContain('🛡 mint ✅ · freeze — · top 10 31% · dev 3%');
+    expect(toMarkdownV2(lines)).toContain(`🧪 [Zop \\[new\\]](${EXPLORER}/token/${MINT}) *\\[4\\.4K / \\+12% 5m\\]* $ZOP/USDG`);
+    expect(toDiscord(lines)).toContain('💎 MC: `$4.4K`');
+  });
+
+  it('shows the hour the bot watched, the peak, the rank and the first call when they are known', () => {
+    const rich: TokenView = { ...token, mc: 40_000, h1: { buys: 25, sells: 30, volumeUsd: 1_539, priceChangePct: -11.7 }, peak: { mc: 120_000, at: 1_000 } };
+    const text = toText(tokenCard(rich, linkTemplates(), 3_601_000, { rank: 4, caller: { name: 'ana', mc: 10_000, at: 1_000 } })).split('\n');
+    expect(text[0]).toBe('🧪 Zop [new] [40K / -12% 1h] $ZOP/USDG');
+    expect(text[1]).toBe('🪶 Robinhood Chain @ Pons · curve 71% · 🔥 #4');
+    expect(text[3]).toBe('💎 MC: $40K ⇨ $120K peak [1h]');
+    expect(text[5]).toBe('📈 1H: -11.7% · $1.5K · 🅑 25 Ⓢ 30 · 5M +12.3%');
+    expect(text).toContain('🏆 ana @ 10K · 4.0x · 1h');
+  });
+
+  it("stays under Telegram's 100 formatting entities with every link filled", () => {
+    const row = parseLinkRow(Array.from({ length: 10 }, (_, i) => `L${i}|https://example.com/${i}/{address}`).join(','));
+    expect(telegramEntities(tokenCard(token, linkTemplates({ row, holderMap: 'https://example.com/m/{address}' }), 61_000, { rank: 1 }))).toBeLessThan(100);
+    expect(fmtShort(12_345_678)).toBe('12.3M');
   });
 
   it('says nothing about checks the feed did not send', () => {
@@ -213,7 +242,7 @@ describe('cards', () => {
     const text = toPlain(trendingCard([token], linkTemplates()));
     expect(text).toContain('top 1 by 5m volume');
     expect(text).toContain('Trending on Robinhood Chain launchpads');
-    expect(text).toContain(`1. ZOP (${EXPLORER}/token/${MINT}) MC $4,446.05 · 5m +12.3% · vol $820.00 · bonding 71%`);
+    expect(text).toContain(`1. ZOP (${EXPLORER}/token/${MINT}) · MC $4.4K · 5m +12.3% · Vol $820 · curve 71%`);
     expect(toPlain(trendingCard([], linkTemplates()))).toContain('Nothing with a dollar volume traded');
   });
 });

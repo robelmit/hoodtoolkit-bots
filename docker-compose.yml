@@ -25,7 +25,8 @@ services:
       HOOD_RPC_URL: ${HOOD_RPC_URL:-}
       SINK: redis
       REDIS_URL: redis://redis:6379
-      # Dollar figures need a price for ETH. A fixed one goes stale; see packages/feed/README.md.
+      # Dollar figures need a price for ETH: live from Coinbase by default; see packages/feed/README.md.
+      QUOTE_PRICE_SOURCE: ${QUOTE_PRICE_SOURCE:-coinbase}
       QUOTE_PRICES_JSON: ${QUOTE_PRICES_JSON:-}
     depends_on:
       - redis
